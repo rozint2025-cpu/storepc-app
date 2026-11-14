@@ -29,7 +29,20 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.29.3'   # גרסה קבועה – כדי שהבנייה לא תישבר כש-Flutter מתעדכן
           cache: true
+
+      - name: Check secrets
+        run: |
+          missing=""
+          for v in KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            [ -z "${!v}" ] && missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing secrets:$missing  (Settings > Secrets and variables > Actions)"
+            exit 1
+          fi
+          flutter --version
 
       - name: Create missing platform files
         run: flutter create --org il.co --project-name storepc --platforms android .
